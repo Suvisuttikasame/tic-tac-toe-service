@@ -22,5 +22,10 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': 'warn',
+    'no-console': 'warn',
+    'no-unreachable': 'error',
+    'no-irregular-whitespace': 'error',
+    'no-unused-expressions': 'error',
+    'no-unused-labels': 'error',
   },
 };
