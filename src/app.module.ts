@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { SocketsModule } from './sockets/sockets.module';
+import { PlayerModule } from './player/player.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RoomModule } from './room/room.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    MongooseModule.forRoot('mongodb://root:root@localhost:27017', {
+      dbName: 'ticTacToe',
+    }),
+    SocketsModule,
+    PlayerModule,
+    RoomModule,
+  ],
 })
 export class AppModule {}
