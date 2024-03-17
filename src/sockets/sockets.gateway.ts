@@ -10,8 +10,9 @@ export class SocketsGateway {
   constructor(private readonly socketsService: SocketsService) {}
 
   @SubscribeMessage('create-room')
-  createRoom(@MessageBody() data: string) {
-    console.log('getdata', data);
+  async createRoom(@MessageBody() data: string) {
+    const save = await this.socketsService.createRoom(data, 'test');
+    console.log('save', save);
     return null;
   }
 }
