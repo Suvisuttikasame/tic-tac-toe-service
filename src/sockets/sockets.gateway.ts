@@ -41,7 +41,7 @@ export class SocketsGateway
 
       this.server.to(roomId).emit('create-room-success', room);
     } catch (error) {
-      console.log(error);
+      client.emit('error-occur', error.message);
     }
   }
 
@@ -62,7 +62,7 @@ export class SocketsGateway
 
       this.server.to(roomId).emit('join-room-success', room);
     } catch (error) {
-      console.log(error);
+      client.emit('error-occur', error.message);
     }
   }
 }
