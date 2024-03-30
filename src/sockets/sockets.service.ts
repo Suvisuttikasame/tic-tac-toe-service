@@ -1,26 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSocketDto } from './dto/create-socket.dto';
-import { UpdateSocketDto } from './dto/update-socket.dto';
+import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class SocketsService {
-  create(createSocketDto: CreateSocketDto) {
-    return 'This action adds a new socket';
+  constructor(private roomService: RoomService) {}
+
+  async createRoom(name: string, socketID: string) {
+    return await this.roomService.createRoom(name, socketID);
   }
 
-  findAll() {
-    return `This action returns all sockets`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} socket`;
-  }
-
-  update(id: number, updateSocketDto: UpdateSocketDto) {
-    return `This action updates a #${id} socket`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} socket`;
+  async joinRoom(name: string, socketID: string, roomID: string) {
+    return await this.roomService.joinRoom(name, socketID, roomID);
   }
 }
