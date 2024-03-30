@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RoomService } from 'src/room/room.service';
+import { RoomService } from '../room/room.service';
 
 @Injectable()
 export class SocketsService {
