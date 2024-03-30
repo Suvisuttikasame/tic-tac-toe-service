@@ -1,6 +1,6 @@
 import { PlayerDocument } from 'src/player/schemas/player.model';
 
-export interface RoomDocument extends Document {
+export interface RoomDocument {
   occupancy: number;
   maxRounds: number;
   currentRound: number;

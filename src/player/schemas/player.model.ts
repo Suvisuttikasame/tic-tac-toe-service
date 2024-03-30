@@ -1,6 +1,6 @@
-export interface PlayerDocument extends Document {
+export interface PlayerDocument {
   name: string;
   socketID: string;
-  points: number;
+  points?: number;
   playerType: string;
 }
