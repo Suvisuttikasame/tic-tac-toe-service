@@ -61,6 +61,7 @@ export class SocketsGateway
       client.join(roomId);
 
       this.server.to(roomId).emit('join-room-success', room);
+      this.server.to(roomId).emit('update-player', room.players);
     } catch (error) {
       client.emit('error-occur', error.message);
     }
