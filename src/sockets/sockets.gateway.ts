@@ -11,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { SocketsService } from './sockets.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoom } from './dto/join-room.dto';
+import { OnTap } from './dto/on-tab.dto';
 
 @WebSocketGateway(8080)
 export class SocketsGateway
@@ -64,6 +65,36 @@ export class SocketsGateway
       this.server.to(roomId).emit('update-player', room.players);
       //update room for player who is waiting in a lobby
       this.server.to(roomId).emit('update-room', room);
+    } catch (error) {
+      client.emit('error-occur', error.message);
+    }
+  }
+
+  @SubscribeMessage('on-tap')
+  async onTap(@ConnectedSocket() client: Socket, @MessageBody() data: OnTap) {
+    try {
+      const req = data.data;
+      const room = await this.socketsService.getRoomById(req.roomId);
+
+      room.currentRound += 1;
+      const type = room.turn.playerType;
+
+      if (room.turnIndex == 0) {
+        room.turn = room.players[1];
+        room.turnIndex = 1;
+      } else {
+        room.turn = room.players[0];
+        room.turnIndex = 0;
+      }
+
+      const sr = await this.socketsService.updateRoom(
+        room,
+        room._id.toString(),
+      );
+      this.server.emit('update-on-tap', {
+        room: sr,
+        dashBoard: req.dashBoard,
+      });
     } catch (error) {
       client.emit('error-occur', error.message);
     }

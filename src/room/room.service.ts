@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { RoomDocument } from './schemas/room.model';
 import { Model } from 'mongoose';
 import { PlayerDocument } from 'src/player/schemas/player.model';
+import { throwError } from 'rxjs';
 
 @Injectable()
 export class RoomService {
@@ -24,6 +25,16 @@ export class RoomService {
       return createRoom;
     } catch (error) {
       throw new Error('fail to crete room');
+    }
+  }
+
+  async updateRoom(room: RoomDocument, id: string) {
+    try {
+      await this.roomModel.updateOne({ _id: id }, room);
+      const ur = await this.roomModel.findById(id);
+      return ur;
+    } catch (error) {
+      throw new Error('fail to update room');
     }
   }
 
@@ -49,6 +60,15 @@ export class RoomService {
       }
     } catch (error) {
       throw new Error('fail to join room');
+    }
+  }
+
+  async getRoomById(roomId: string) {
+    try {
+      const room = await this.roomModel.findById(roomId);
+      return room;
+    } catch (error) {
+      throw new Error('fail to get this room id');
     }
   }
 }
