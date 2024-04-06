@@ -77,9 +77,6 @@ export class SocketsGateway
       const req = data.data;
       const room = await this.socketsService.getRoomById(req.roomId);
 
-      room.currentRound += 1;
-      const type = room.turn.playerType;
-
       if (room.turnIndex == 0) {
         room.turn = room.players[1];
         room.turnIndex = 1;
@@ -111,9 +108,7 @@ export class SocketsGateway
       const req = data.data;
       const room = await this.socketsService.getRoomById(req.roomId);
       room.currentRound += 1;
-      if (room.currentRound == 6) {
-        // end game
-      }
+
       const updatePlayers = room.players.map((player) => {
         if (player.socketID == req.winnerId) {
           player.points += 1;
@@ -129,6 +124,20 @@ export class SocketsGateway
 
       this.server.to(room._id.toString()).emit('update-room', ur);
       this.server.to(room._id.toString()).emit('update-player', ur.players);
+      const winner = updatePlayers.find(
+        (player) => player.socketID == req.winnerId,
+      );
+      if (room.currentRound == room.maxRounds) {
+        // end game
+        this.server
+          .to(room._id.toString())
+          .emit('end-game', { winner: winner, isEnd: true });
+      } else {
+        //just update player winner
+        this.server
+          .to(room._id.toString())
+          .emit('end-game', { winner: winner, isEnd: false });
+      }
     } catch (error) {
       client.emit('error-occur', error.message);
     }
