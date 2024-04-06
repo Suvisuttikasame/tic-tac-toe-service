@@ -12,6 +12,7 @@ import { SocketsService } from './sockets.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoom } from './dto/join-room.dto';
 import { OnTap } from './dto/on-tab.dto';
+import { UpdateWinner } from './dto/update-winner.dto';
 
 @WebSocketGateway(8080)
 export class SocketsGateway
@@ -95,6 +96,39 @@ export class SocketsGateway
         room: sr,
         dashBoard: req.dashBoard,
       });
+    } catch (error) {
+      client.emit('error-occur', error.message);
+    }
+  }
+
+  @SubscribeMessage('winner')
+  async winner(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: UpdateWinner,
+  ) {
+    //find room
+    try {
+      const req = data.data;
+      const room = await this.socketsService.getRoomById(req.roomId);
+      room.currentRound += 1;
+      if (room.currentRound == 6) {
+        // end game
+      }
+      const updatePlayers = room.players.map((player) => {
+        if (player.socketID == req.winnerId) {
+          player.points += 1;
+        }
+        return player;
+      });
+      room.players = updatePlayers;
+
+      const ur = await this.socketsService.updateRoom(
+        room,
+        room._id.toString(),
+      );
+
+      this.server.to(room._id.toString()).emit('update-room', ur);
+      this.server.to(room._id.toString()).emit('update-player', ur.players);
     } catch (error) {
       client.emit('error-occur', error.message);
     }

@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { RoomDocument } from './schemas/room.model';
 import { Model } from 'mongoose';
 import { PlayerDocument } from 'src/player/schemas/player.model';
-import { throwError } from 'rxjs';
 
 @Injectable()
 export class RoomService {
