@@ -12,6 +12,7 @@ import { SocketsService } from './sockets.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoom } from './dto/join-room.dto';
 import { OnTap } from './dto/on-tab.dto';
+import { UpdateWinner } from './dto/update-winner.dto';
 
 @WebSocketGateway(8080)
 export class SocketsGateway
@@ -76,9 +77,6 @@ export class SocketsGateway
       const req = data.data;
       const room = await this.socketsService.getRoomById(req.roomId);
 
-      room.currentRound += 1;
-      const type = room.turn.playerType;
-
       if (room.turnIndex == 0) {
         room.turn = room.players[1];
         room.turnIndex = 1;
@@ -95,6 +93,51 @@ export class SocketsGateway
         room: sr,
         dashBoard: req.dashBoard,
       });
+    } catch (error) {
+      client.emit('error-occur', error.message);
+    }
+  }
+
+  @SubscribeMessage('winner')
+  async winner(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: UpdateWinner,
+  ) {
+    //find room
+    try {
+      const req = data.data;
+      const room = await this.socketsService.getRoomById(req.roomId);
+      room.currentRound += 1;
+
+      const updatePlayers = room.players.map((player) => {
+        if (player.socketID == req.winnerId) {
+          player.points += 1;
+        }
+        return player;
+      });
+      room.players = updatePlayers;
+
+      const ur = await this.socketsService.updateRoom(
+        room,
+        room._id.toString(),
+      );
+
+      this.server.to(room._id.toString()).emit('update-room', ur);
+      this.server.to(room._id.toString()).emit('update-player', ur.players);
+      const winner = updatePlayers.find(
+        (player) => player.socketID == req.winnerId,
+      );
+      if (room.currentRound == room.maxRounds) {
+        // end game
+        this.server
+          .to(room._id.toString())
+          .emit('end-game', { winner: winner, isEnd: true });
+      } else {
+        //just update player winner
+        this.server
+          .to(room._id.toString())
+          .emit('end-game', { winner: winner, isEnd: false });
+      }
     } catch (error) {
       client.emit('error-occur', error.message);
     }
